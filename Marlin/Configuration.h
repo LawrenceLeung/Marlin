@@ -4,8 +4,8 @@
 
 
 // This determines the communication speed of the printer
-#define BAUDRATE 250000
-//#define BAUDRATE 115200
+//#define BAUDRATE 250000
+#define BAUDRATE 115200
 //#define BAUDRATE 230400
 
 #define EXTRUDERS 1
@@ -29,7 +29,7 @@
 // Sanguinololu 1.2 and above = 62
 // Ultimaker = 7,
 // Teensylu = 8
-#define MOTHERBOARD 7
+#define MOTHERBOARD 8
 
 //===========================================================================
 //=============================Thermal Settings  ============================
@@ -48,16 +48,20 @@
 //#define THERMISTORHEATER_1 1
 //#define THERMISTORHEATER_2 1
 
-//#define HEATER_0_USES_THERMISTOR
+#define THERMISTORHEATER_0 6
+#define THERMISTORBED 6
+
+#define HEATER_0_USES_THERMISTOR
 //#define HEATER_1_USES_THERMISTOR
 //#define HEATER_2_USES_THERMISTOR
-#define HEATER_0_USES_AD595
+//#define HEATER_0_USES_AD595
 //#define HEATER_1_USES_AD595
 //#define HEATER_2_USES_AD595
 
 // Select one of these only to define how the bed temp is read.
 //#define THERMISTORBED 1
 //#define BED_USES_THERMISTOR
+#define BED_USES_THERMISTOR
 //#define BED_USES_AD595
 
 #define BED_CHECK_INTERVAL 5000 //ms
@@ -82,10 +86,10 @@
 // When temperature exceeds max temp, your heater will be switched off.
 // This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
 // You should use MINTEMP for thermistor short/failure protection.
-#define HEATER_0_MAXTEMP 275
+#define HEATER_0_MAXTEMP 250
 //#define HEATER_1_MAXTEMP 275
 //#define HEATER_2_MAXTEMP 275
-//#define BED_MAXTEMP 150
+#define BED_MAXTEMP 150
 
 
 // Wait for Cooldown
@@ -130,14 +134,14 @@
 //    #define  DEFAULT_Kd (PID_SWING_AT_CRITIAL/8./PID_dT)  
 
 // Ultitmaker
-    #define  DEFAULT_Kp  22.2
-    #define  DEFAULT_Ki (1.25*PID_dT)  
-    #define  DEFAULT_Kd (99/PID_dT)  
+//    #define  DEFAULT_Kp  22.2
+//    #define  DEFAULT_Ki (1.25*PID_dT)
+//    #define  DEFAULT_Kd (99/PID_dT)
 
 // Makergear
-//    #define  DEFAULT_Kp 7.0
-//    #define  DEFAULT_Ki 0.1  
-//    #define  DEFAULT_Kd 12  
+    #define  DEFAULT_Kp 7.0
+    #define  DEFAULT_Ki 0.1
+    #define  DEFAULT_Kd 12
 
 // Mendel Parts V9 on 12V    
 //    #define  DEFAULT_Kp  63.0
@@ -194,7 +198,7 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 // Disables axis when it's not being used.
 #define DISABLE_X false
 #define DISABLE_Y false
-#define DISABLE_Z false
+#define DISABLE_Z true
 #define DISABLE_E false // For all extruders
 
 // Inverting axis direction
@@ -218,8 +222,8 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 
 #define min_software_endstops true //If true, axis won't move to coordinates less than zero.
 #define max_software_endstops true  //If true, axis won't move to coordinates greater than the defined lengths below.
-#define X_MAX_LENGTH 205
-#define Y_MAX_LENGTH 205
+#define X_MAX_LENGTH 200
+#define Y_MAX_LENGTH 200
 #define Z_MAX_LENGTH 200
 
 //// MOVEMENT SETTINGS
@@ -236,11 +240,13 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 
 #define MAX_STEP_FREQUENCY 40000 // Max step frequency for Ultimaker (5000 pps / half step)
 
-// default settings 
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {78.7402,78.7402,200*8/3,760*1.1}                    // default steps per unit for ultimaker 
+//#define DEFAULT_AXIS_STEPS_PER_UNIT   {78.7402,78.7402,200*8/3,760*1.1}                    // default steps per unit for ultimaker
 //#define DEFAULT_AXIS_STEPS_PER_UNIT   {40, 40, 3333.92, 360} //sells mendel with v9 extruder
 //#define DEFAULT_AXIS_STEPS_PER_UNIT   {80.3232, 80.8900, 2284.7651, 757.2218} // SAE Prusa w/ Wade extruder
+#define DEFAULT_AXIS_STEPS_PER_UNIT    {106.6667, 106.6667, 2015.748,894.865}                 // X, Y, Z, E steps per unit - LL's Mendelx (from calculations)
+
+
 #define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 45}    // (mm/sec)    
 #define DEFAULT_MAX_ACCELERATION      {9000,9000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 
@@ -315,7 +321,7 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 #define SD_FINISHED_STEPPERRELEASE true  //if sd support and the file is finished: disable steppers?
 #define SD_FINISHED_RELEASECOMMAND "M84 X Y E" // no z because of layer shift.
 
-#define ULTIPANEL
+//#define ULTIPANEL
 #ifdef ULTIPANEL
   //#define NEWPANEL  //enable this if you have a click-encoder panel
   #define SDSUPPORT
@@ -353,7 +359,7 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 //this prevents dangerous Extruder moves, i.e. if the temperature is under the limit
 //can be software-disabled for whatever purposes by
 #define PREVENT_DANGEROUS_EXTRUDE
-#define EXTRUDE_MINTEMP 190
+#define EXTRUDE_MINTEMP 200
 #define EXTRUDE_MAXLENGTH (X_MAX_LENGTH+Y_MAX_LENGTH) //prevent extrusion of very large distances.
 
 const int dropsegments=5; //everything with less than this number of steps will be ignored as move and joined with the next movement
@@ -375,7 +381,7 @@ const int dropsegments=5; //everything with less than this number of steps will 
 
 //The ASCII buffer for recieving from the serial:
 #define MAX_CMD_SIZE 96
-#define BUFSIZE 4
+#define BUFSIZE 8
 
 
 #include "thermistortables.h"
