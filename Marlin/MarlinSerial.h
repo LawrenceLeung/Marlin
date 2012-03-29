@@ -51,7 +51,7 @@ struct ring_buffer
   int tail;
 };
 
-#if defined(UBRRH) || defined(UBRR0H)
+#if defined(UBRRH) || defined(UBRR0H) || defined(USB_SERIAL)
   extern ring_buffer rx_buffer;
 #endif
 
@@ -68,22 +68,36 @@ class MarlinSerial //: public Stream
     
     FORCE_INLINE int available(void)
     {
-      return (unsigned int)(RX_BUFFER_SIZE + rx_buffer.head - rx_buffer.tail) % RX_BUFFER_SIZE;
+      unsigned int x=(RX_BUFFER_SIZE + rx_buffer.head - rx_buffer.tail) % RX_BUFFER_SIZE;
+#if defined(USB_SERIAL)
+      return x+ Serial.available();
+#else
+      return x;
+#endif
+      
     }
     
     FORCE_INLINE void write(uint8_t c)
     {
-      while (!((UCSR0A) & (1 << UDRE0)))
+#if defined(USB_SERIAL)
+     Serial.write(c);
+#else
+     while (!((UCSR0A) & (1 << UDRE0)))
         ;
-
       UDR0 = c;
+#endif
     }
     
     
     FORCE_INLINE void checkRx(void)
     {
+#if defined(USB_SERIAL)
+    	if (Serial.available()){
+#else
       if((UCSR0A & (1<<RXC0)) != 0) {
         unsigned char c  =  UDR0;
+#endif
+
         int i = (unsigned int)(rx_buffer.head + 1) % RX_BUFFER_SIZE;
 
         // if we should be storing the received character into the location
@@ -91,7 +105,11 @@ class MarlinSerial //: public Stream
         // current location of the tail), we're about to overflow the buffer
         // and so we don't write the character or advance the head.
         if (i != rx_buffer.tail) {
+#if defined(USB_SERIAL)
+          rx_buffer.buffer[rx_buffer.head] = Serial.read();
+#else
           rx_buffer.buffer[rx_buffer.head] = c;
+#endif
           rx_buffer.head = i;
         }
       }
@@ -149,7 +167,7 @@ class MarlinSerial //: public Stream
     void println(void);
 };
 
-#if defined(UBRRH) || defined(UBRR0H)
+#if defined(UBRRH) || defined(UBRR0H) || defined(USB_SERIAL)
   extern MarlinSerial MSerial;
 #endif
 

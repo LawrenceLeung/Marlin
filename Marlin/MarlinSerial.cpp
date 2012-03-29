@@ -43,7 +43,7 @@
 
 
 
-#if defined(UBRRH) || defined(UBRR0H)
+#if defined(UBRRH) || defined(UBRR0H) ||  defined(USB_SERIAL)
   ring_buffer rx_buffer  =  { { 0 }, 0, 0 };
 #endif
 
@@ -91,6 +91,9 @@ MarlinSerial::MarlinSerial()
 
 void MarlinSerial::begin(long baud)
 {
+#if defined(USB_SERIAL)
+  Serial.begin(baud); // actual speed is ignored with usb
+#else
   uint16_t baud_setting;
   bool useU2X0 = true;
 
@@ -102,7 +105,7 @@ void MarlinSerial::begin(long baud)
     useU2X0 = false;
   }
 #endif
-  
+
   if (useU2X0) {
     UCSR0A = 1 << U2X0;
     baud_setting = (F_CPU / 4 / baud - 1) / 2;
@@ -118,19 +121,32 @@ void MarlinSerial::begin(long baud)
   sbi(UCSR0B, RXEN0);
   sbi(UCSR0B, TXEN0);
   sbi(UCSR0B, RXCIE0);
+#endif
 }
 
 void MarlinSerial::end()
 {
+#if defined(USB_SERIAL)
+	Serial.end();
+#else
   cbi(UCSR0B, RXEN0);
   cbi(UCSR0B, TXEN0);
-  cbi(UCSR0B, RXCIE0);  
+  cbi(UCSR0B, RXCIE0);
+#endif
+
 }
 
 
 
 int MarlinSerial::peek(void)
 {
+#if defined(USB_SERIAL)
+// check the USB buffer if empty
+	if (rx_buffer.head == rx_buffer.tail) {
+		   checkRx();
+	}
+#endif
+
   if (rx_buffer.head == rx_buffer.tail) {
     return -1;
   } else {
@@ -140,6 +156,13 @@ int MarlinSerial::peek(void)
 
 int MarlinSerial::read(void)
 {
+
+#if defined(USB_SERIAL)
+	// check the USB buffer if empty
+   if (rx_buffer.head == rx_buffer.tail) {
+	   checkRx();
+   }
+#endif
   // if the head isn't ahead of the tail, we don't have any characters
   if (rx_buffer.head == rx_buffer.tail) {
     return -1;
@@ -161,6 +184,10 @@ void MarlinSerial::flush()
   // the value to rx_buffer_tail; the previous value of rx_buffer_head
   // may be written to rx_buffer_tail, making it appear as if the buffer
   // were full, not empty.
+#if defined(USB_SERIAL)
+  Serial.flush();
+#endif
+
   rx_buffer.head = rx_buffer.tail;
 }
 
